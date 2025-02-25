@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Button Click Game</title>
+  <!-- Bootstrap CSS from CDN -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .button-container {
+      margin-top: 20px;
+    }
+    .game-button {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .command-text {
+      font-size: 24px;
+      margin: 20px 0;
+    }
+    .score-text, .timer-text {
+      font-size: 20px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1 class="mt-4 text-center">Button Click Game</h1>
+  <div class="command-text text-center" id="command">Click ...</div>
+  <div class="score-text text-center">Score: <span id="score">0</span></div>
+  <div class="timer-text text-center">Time left: <span id="time-left">60</span>s</div>
+  
+  <div class="button-container">
+    <!-- 10 vertically arranged buttons with Bootstrap styling -->
+    <button class="btn btn-primary game-button" data-color="blue">Blue</button>
+    <button class="btn btn-danger game-button" data-color="red">Red</button>
+    <button class="btn btn-warning game-button" data-color="yellow">Yellow</button>
+    <button class="btn btn-success game-button" data-color="green">Green</button>
+    <button class="btn btn-info game-button" data-color="cyan">Cyan</button>
+    <button class="btn btn-secondary game-button" data-color="gray">Gray</button>
+    <button class="btn btn-dark game-button" data-color="black">Black</button>
+    <button class="btn btn-light game-button" data-color="white">White</button>
+    <button class="btn btn-outline-primary game-button" data-color="navy">Navy</button>
+    <button class="btn btn-outline-danger game-button" data-color="maroon">Maroon</button>
+  </div>
+</div>
+
+<script>
+  // List of colors corresponding to our buttons' data-color attributes
+  const colors = ["blue", "red", "yellow", "green", "cyan", "gray", "black", "white", "navy", "maroon"];
+
+  let score = 0;
+  let gameTime = 60;        // Total game time in seconds
+  const commandInterval = 3; // Command changes every 3 seconds
+  let currentCommand = "";
+  let clickedInCycle = false;
+
+  // DOM elements
+  const commandElement = document.getElementById('command');
+  const scoreElement = document.getElementById('score');
+  const timeLeftElement = document.getElementById('time-left');
+  const buttons = document.querySelectorAll('.game-button');
+
+  // Function to update score display
+  function updateScore() {
+    scoreElement.textContent = score;
+  }
+
+  // Function to generate a new command
+  function newCommand() {
+    // If no button was clicked during the previous cycle, subtract 1 point.
+    if (!clickedInCycle) {
+      score -= 2;
+      updateScore();
+    }
+    // Reset flag for this cycle
+    clickedInCycle = false;
+    
+    // Pick a random color from the available list.
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    currentCommand = colors[randomIndex];
+    commandElement.textContent = "Click " + currentCommand + " button";
+  }
+
+  // Listen for button clicks
+  buttons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Only count the first click in each cycle
+      if (clickedInCycle) return;
+      clickedInCycle = true;
+      const buttonColor = this.getAttribute('data-color');
+      if (buttonColor === currentCommand) {
+        score += 3;
+      } else {
+        score -= 3;
+      }
+      updateScore();
+    });
+  });
+
+  // Game timer: decrease the remaining time every second
+  const gameTimer = setInterval(() => {
+    gameTime -= 1;
+    timeLeftElement.textContent = gameTime;
+    if (gameTime <= 0) {
+      clearInterval(gameTimer);
+      clearInterval(commandTimer);
+      commandElement.textContent = "Game Over!";
+      // Disable all buttons when the game ends
+      buttons.forEach(button => button.disabled = true);
+    }
+  }, 1000);
+
+  // Command timer: update the command every 3 seconds
+  const commandTimer = setInterval(() => {
+    newCommand();
+  }, commandInterval * 1000);
+
+  // Start the game by displaying the first command immediately.
+  newCommand();
+</script>
+</body>
+</html>
